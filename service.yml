@@ -4,10 +4,9 @@ metadata:
   name: nodeapp-service
 spec:
   selector:
-    app: nodeapp 
-  type: LoadBalancer
+    app: nodeapp
   ports:
-  - protocol: TCP
-    port: 5000
-    targetPort: 3000
-    nodePort: 31110
+    - protocol: TCP
+      port: 80
+      targetPort: 4000  # This should match the port your app is listening on
+  type: LoadBalancer  # Use ClusterIP or NodePort based on your Kubernetes setup
