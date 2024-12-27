@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: nodeapp
-        image: your-docker-image-name:latest  # Replace with the correct image name
+        image: nagarajnode:latest  # Replace with the correct image name
         ports:
         - containerPort: 4000  # Ensure your app listens on port 4000
