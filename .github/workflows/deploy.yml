@@ -1,0 +1,55 @@
+name: Deploy Node.js Application to Kubernetes
+
+on:
+  push:
+    branches:
+      - master  # Trigger on push to the master branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner for CI
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2  # Check out the repository
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2  # Set up Docker Buildx for building multi-platform images
+
+    - name: Cache Docker layers
+      uses: actions/cache@v2
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Build Docker image
+      run: |
+        docker build -t nagarajnode .  # Replace with your image name
+
+    - name: Log in to Docker Hub
+      run: |
+        echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin  # Log in securely using Docker Hub credentials
+
+    - name: Push Docker image to Docker Hub
+      run: |
+        docker push nagarajnode  # Replace with your image name
+
+  deploy:
+    runs-on: ubuntu-latest  # Runs on the latest Ubuntu runner
+    needs: build  # This ensures that the deploy job runs only after the build job
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v1  # Set up kubectl to interact with Kubernetes
+      with:
+        version: 'v1.21.2'  # Specify the Kubernetes version (optional)
+
+    - name: Deploy to Kubernetes
+      run: |
+        kubectl apply -f deployment.yml  # Deploy the app using deployment.yml
+        kubectl apply -f service.yml  # Expose the app using service.yml
