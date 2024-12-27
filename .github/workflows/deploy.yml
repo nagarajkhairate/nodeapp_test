@@ -1,4 +1,4 @@
-name: Deploy Node.js Application to Kubernetes
+name: Build and Push Node.js Application to Docker Hub
 
 on:
   push:
@@ -35,21 +35,3 @@ jobs:
     - name: Push Docker image to Docker Hub
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/nagarajnode:latest  # Push the Docker image to your Docker Hub account
-
-  deploy:
-    runs-on: ubuntu-latest  # Runs on the latest Ubuntu runner
-    needs: build  # This ensures that the deploy job runs only after the build job
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up kubectl
-      uses: azure/setup-kubectl@v1  # Set up kubectl to interact with Kubernetes
-      with:
-        version: 'v1.21.2'  # Specify the Kubernetes version (optional)
-
-    - name: Deploy to Kubernetes
-      run: |
-        kubectl apply -f deployment.yml  # Deploy the app using deployment.yml
-        kubectl apply -f service.yml  # Expose the app using service.yml
